@@ -1,7 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// Firebase Configuration จากที่คุณให้มา
 const firebaseConfig = {
     apiKey: "AIzaSyAYnOsZdL9-Zih0T-0p3ymZlJKmw2EMXvU",
     authDomain: "khangrua-talk.firebaseapp.com",
@@ -12,48 +11,60 @@ const firebaseConfig = {
     measurementId: "G-TNFZBG4J1T"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const messagesCol = collection(db, "chats");
+const postsCol = collection(db, "posts");
 
-const chatForm = document.getElementById('chat-form');
-const messageInput = document.getElementById('message-input');
-const chatBox = document.getElementById('chat-box');
+// ฟังก์ชันสลับหน้า
+window.showPage = (pageId) => {
+    document.getElementById('feed-page').classList.toggle('hidden', pageId !== 'feed-page');
+    document.getElementById('create-page').classList.toggle('hidden', pageId !== 'create-page');
+};
 
-// 1. ส่งข้อความไปยัง Firestore
-chatForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const text = messageInput.value.trim();
-
-    if (text !== "") {
-        try {
-            await addDoc(messagesCol, {
-                text: text,
-                createdAt: serverTimestamp(),
-                sender: "user1" // ในอนาคตสามารถเปลี่ยนเป็นระบบ Login ได้
-            });
-            messageInput.value = "";
-        } catch (error) {
-            console.error("Error adding document: ", error);
-        }
-    }
+// 1. ดึงโพสต์มาแสดงผล (Real-time)
+const q = query(postsCol, orderBy("createdAt", "desc"));
+onSnapshot(q, (snapshot) => {
+    const postsList = document.getElementById('posts-list');
+    postsList.innerHTML = "";
+    snapshot.forEach((doc) => {
+        const post = doc.data();
+        const html = `
+            <div class="post-card">
+                <div class="post-user"><i class="fas fa-user-circle"></i> <span>นิรนาม</span></div>
+                <div class="post-title">${post.title}</div>
+                <div class="post-stats">
+                    <i class="far fa-comment"></i> 0 comments &nbsp;
+                    <i class="far fa-heart"></i> 0 likes &nbsp;
+                    <i class="far fa-clock"></i> เมื่อสักครู่
+                </div>
+            </div>
+        `;
+        postsList.insertAdjacentHTML('beforeend', html);
+    });
 });
 
-// 2. ดึงข้อมูลแบบ Real-time
-const q = query(messagesCol, orderBy("createdAt", "asc"));
-onSnapshot(q, (snapshot) => {
-    chatBox.innerHTML = "";
-    snapshot.forEach((doc) => {
-        const data = doc.data();
-        const messageDiv = document.createElement('div');
-        
-        // กำหนด class ตามผู้ส่ง (ตัวอย่างนี้จำลองว่าเป็น sent ทั้งหมดก่อน)
-        messageDiv.classList.add('message', 'sent');
-        messageDiv.textContent = data.text;
-        
-        chatBox.appendChild(messageDiv);
-    });
-    // เลื่อนลงไปล่างสุดเมื่อมีข้อความใหม่
-    chatBox.scrollTop = chatBox.scrollHeight;
+// 2. บันทึกโพสต์ใหม่
+document.getElementById('btn-post').addEventListener('click', async () => {
+    const title = document.getElementById('post-title').value;
+    const content = document.getElementById('post-content').value;
+    const allowComments = document.getElementById('allow-comments').checked;
+
+    if (title && content) {
+        try {
+            await addDoc(postsCol, {
+                title: title,
+                content: content,
+                allowComments: allowComments,
+                createdAt: serverTimestamp()
+            });
+            // ล้างข้อมูลและกลับหน้าหลัก
+            document.getElementById('post-title').value = "";
+            document.getElementById('post-content').value = "";
+            showPage('feed-page');
+        } catch (e) {
+            alert("เกิดข้อผิดพลาดในการโพสต์");
+        }
+    } else {
+        alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+    }
 });
