@@ -3,24 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khangrua Talk - ระบบปรึกษาออนไลน์</title>
+    <title>Khangrua Talk</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <div class="chat-container">
-        <header>
-            <h1>Khangrua Talk</h1>
-            <p>พื้นที่ปรึกษาสำหรับชาวมหาวิทยาลัย</p>
-        </header>
+    <div class="app-container">
+        <section id="feed-page">
+            <header class="main-header">
+                <div class="user-icon"><i class="fas fa-user-circle"></i></div>
+                <h2>หน้าแรก</h2>
+                <div class="notif-icon"><i class="fas fa-bell"></i></div>
+            </header>
 
-        <div id="chat-box" class="chat-box">
+            <div class="search-bar">
+                <input type="text" placeholder="ค้นหาเรื่องพูดคุย...">
             </div>
 
-        <form id="chat-form">
-            <input type="text" id="message-input" placeholder="พิมพ์ข้อความที่ต้องการปรึกษา..." required autocomplete="off">
-            <button type="submit">ส่ง</button>
-        </form>
+            <div class="tags-container">
+                <span class="tag active">ทั้งหมด</span>
+                <span class="tag">ม.เกษตร</span>
+                <span class="tag">ม.ธรรมศาสตร์</span>
+                <span class="tag">จุฬาฯ</span>
+            </div>
+
+            <div id="posts-list" class="posts-list">
+                </div>
+
+            <button class="btn-create-floating" onclick="showPage('create-page')">
+                <i class="fas fa-plus"></i> สร้างโพสต์ใหม่
+            </button>
+        </section>
+
+        <section id="create-page" class="hidden">
+            <header class="create-header">
+                <button class="btn-close" onclick="showPage('feed-page')"><i class="fas fa-times"></i></button>
+                <h2>สร้างโพสต์ใหม่</h2>
+                <button id="btn-post" class="btn-post-action">โพสต์</button>
+            </header>
+
+            <div class="post-form">
+                <p class="anon-notice"><i class="fas fa-lock"></i> คุณกำลังโพสต์แบบไม่ระบุตัวตน</p>
+                
+                <label>ระบุหัวข้อ (Title)</label>
+                <input type="text" id="post-title" placeholder="อยากปรึกษาเรื่องการเรียน...">
+
+                <label>แชร์เรื่องราวหรือคำปรึกษาของคุณ... (Content)</label>
+                <textarea id="post-content" rows="6" placeholder="ช่วงนี้เครียดมาก..."></textarea>
+
+                <label>เพิ่มแท็ก (#มหาวิทยาลัย, #ประสบการณ์)</label>
+                <div class="tags-input">
+                    <span class="tag">ม.เกษตร</span>
+                    <span class="tag">ม.ธรรมศาสตร์</span>
+                    <span class="tag">ม.มหิดล</span>
+                    <span class="tag">ทั่วไป</span>
+                </div>
+
+                <div class="comment-toggle">
+                    <span>อนุญาตให้แสดงความคิดเห็น</span>
+                    <label class="switch">
+                        <input type="checkbox" id="allow-comments" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script type="module" src="script.js"></script>
